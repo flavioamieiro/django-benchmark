@@ -2,3 +2,8 @@
 *~
 *.swp
 *.swo
+/bin/
+/build/
+/include/
+/lib/
+/share/
