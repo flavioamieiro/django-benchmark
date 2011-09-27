@@ -18,14 +18,14 @@ def deploy(revision):
     run('rm -v %s' % remote_archive_path)
     sudo('ln -f -s %s /etc/nginx/sites-enabled/001-load_testing' % NGINX_CONFIG)
 
-    with cd('/etc/init/'):
-        sudo('cp -f %s/simple_wsgi.conf simple_wsgi.conf' % (CONFIG_DIR))
+    create_upstart_job('simple_wsgi')
+    create_upstart_job('wsgi_read_from_disk')
 
     sudo('/etc/init.d/nginx restart')
     sudo("init Q")
-    with settings(warn_only=True):
-        sudo('initctl stop simple_wsgi')
-    sudo('initctl start simple_wsgi')
+
+    reload_server('simple_wsgi')
+    reload_server('wsgi_read_from_disk')
 
 
 
@@ -36,3 +36,12 @@ def _create_git_archive(revision):
     local('git archive --format=tar %s | bzip2 -c > %s' % (rev, archive_path))
 
     return archive_path
+
+def reload_server(name):
+    with settings(warn_only=True):
+        sudo('initctl stop %s' % name)
+    sudo('initctl start %s' % name)
+
+def create_upstart_job(name):
+    with cd('/etc/init/'):
+        sudo('cp -f %s/%s.conf %s.conf' % (CONFIG_DIR, name, name))

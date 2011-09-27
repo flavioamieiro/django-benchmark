@@ -2,6 +2,10 @@ upstream simple_wsgi {
     server 127.0.0.1:8000 fail_timeout=0;
 }
 
+upstream wsgi_read_from_disk {
+    server 127.0.0.1:8001 fail_timeout=0;
+}
+
 server {
     listen      80;
     charset     utf-8;
@@ -18,5 +22,13 @@ server {
         proxy_redirect off;
 
         proxy_pass   http://simple_wsgi;
+    }
+
+    location = /wsgi/disk_read/wsgi_read_from_disk.py {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+
+        proxy_pass   http://wsgi_read_from_disk;
     }
 }
