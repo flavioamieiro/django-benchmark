@@ -20,12 +20,14 @@ def deploy(revision):
 
     create_upstart_job('simple_wsgi')
     create_upstart_job('wsgi_read_from_disk')
+    create_upstart_job('wsgi_connect_to_db')
 
     sudo('/etc/init.d/nginx restart')
     sudo("init Q")
 
     reload_server('simple_wsgi')
     reload_server('wsgi_read_from_disk')
+    reload_server('wsgi_connect_to_db')
 
 
 
