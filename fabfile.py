@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import os
-from fabric.api import run, put, sudo, local, cd, settings
+import datetime
+from fabric.api import run, put, sudo, local, cd, settings, get
 
 # Sempre executa o fabric no diretório raiz do repositório
 os.chdir(os.path.dirname(__file__))
@@ -9,6 +10,35 @@ os.chdir(os.path.dirname(__file__))
 REMOTE_ROOT = '/srv/load_testing'
 CONFIG_DIR = REMOTE_ROOT + '/config'
 NGINX_CONFIG = CONFIG_DIR + '/load_testing.vhost'
+
+def benchmark(url, base_filename, requests=100000, concurrency=1000):
+    filename = '{0}-{1}'.format(datetime.datetime.now().strftime('%Y%m%d_%H-%M-%S'), base_filename)
+    remote_file_path = os.path.join('/tmp', filename)
+    local_file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', filename)
+
+    run('ab -n {requests} -c {concurrency} {url} > {remote_file_path}'.format(**locals()))
+    get(remote_file_path, local_file_path)
+    run('rm {0}'.format(remote_file_path))
+
+def benchmark_all():
+    base_url = 'http://192.168.132.97'
+    test_cases = [
+        ('/static_html/index.html', 'static_html'),
+        ('/wsgi/simple_wsgi.py', 'simple_wsgi'),
+        ('/wsgi/disk_read/wsgi_read_from_disk.py', 'wsgi_read_from_disk'),
+        ('/wsgi/db/connect/wsgi_connect_to_db.py', 'wsgi_connect_to_db'),
+        ('/wsgi/db/fetch/wsgi_fetch_from_db.py', 'wsgi_fetch_from_db'),
+        ('/wsgi/django_test/direct_response/', 'django_direct_response'),
+        ('/wsgi/django_test/response_from_disk/', 'django_response_from_disk'),
+        ('/wsgi/django_test/db/raw/connect/', 'django_db_raw_connect'),
+        ('/wsgi/django_test/db/raw/fetch/', 'django_db_raw_fetch'),
+        ('/wsgi/django_test/db/orm/fetch/', 'django_db_orm_fetch'),
+    ]
+
+    for path, name in test_cases:
+        url = '{0}{1}'.format(base_url, path)
+        filename = '{0}.txt'.format(name)
+        benchmark(url, filename)
 
 def deploy(revision):
     local_archive_path = remote_archive_path = _create_git_archive(revision)
