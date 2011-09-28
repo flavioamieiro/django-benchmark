@@ -16,7 +16,9 @@ def benchmark(url, base_filename, requests=100000, concurrency=1000):
     remote_file_path = os.path.join('/tmp', filename)
     local_file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', filename)
 
-    run('ab -n {requests} -c {concurrency} {url} > {remote_file_path}'.format(**locals()))
+    with settings(warn_only=True):
+        run('ab -n {requests} -c {concurrency} -r {url} > {remote_file_path}'.format(**locals()))
+
     get(remote_file_path, local_file_path)
     run('rm {0}'.format(remote_file_path))
 
