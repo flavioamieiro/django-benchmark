@@ -35,6 +35,11 @@ def benchmark_all():
         ('/wsgi/django_test/db/raw/connect/', 'django_db_raw_connect'),
         ('/wsgi/django_test/db/raw/fetch/', 'django_db_raw_fetch'),
         ('/wsgi/django_test/db/orm/fetch/', 'django_db_orm_fetch'),
+        ('/wsgi/django_with_middlewares/direct_response/', 'django_middleware_direct_response'),
+        ('/wsgi/django_with_middlewares/response_from_disk/', 'django_middleware_response_from_disk'),
+        ('/wsgi/django_with_middlewares/db/raw/connect/', 'django_middleware_db_raw_connect'),
+        ('/wsgi/django_with_middlewares/db/raw/fetch/', 'django_middleware_db_raw_fetch'),
+        ('/wsgi/django_with_middlewares/db/orm/fetch/', 'django_middleware_db_orm_fetch'),
     ]
 
     for path, name in test_cases:
@@ -55,6 +60,7 @@ def deploy(revision):
     create_upstart_job('wsgi_connect_to_db')
     create_upstart_job('wsgi_fetch_from_db')
     create_upstart_job('django')
+    create_upstart_job('django_with_middlewares')
 
     sudo('/etc/init.d/nginx restart')
     sudo("init Q")
@@ -65,6 +71,7 @@ def deploy(revision):
     reload_server('wsgi_connect_to_db')
     reload_server('wsgi_fetch_from_db')
     reload_server('django')
+    reload_server('django_with_middlewares')
 
 
 

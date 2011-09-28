@@ -18,6 +18,10 @@ upstream django {
     server 127.0.0.1:8004 fail_timeout=0;
 }
 
+upstream django_with_middlewares {
+    server 127.0.0.1:8005 fail_timeout=0;
+}
+
 server {
     listen      80;
     charset     utf-8;
@@ -66,5 +70,13 @@ server {
         proxy_redirect off;
 
         proxy_pass   http://django;
+    }
+
+    location ~ /wsgi/django_with_middlewares/ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+
+        proxy_pass   http://django_with_middlewares;
     }
 }

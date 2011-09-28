@@ -1,0 +1,1 @@
+This response was read by django from the disk
