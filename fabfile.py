@@ -26,6 +26,7 @@ def deploy(revision):
 
     sudo('/etc/init.d/nginx restart')
     sudo("init Q")
+    run('/usr/bin/python %s/test_cases/wsgi/django_test/manage.py syncdb' % REMOTE_ROOT)
 
     reload_server('simple_wsgi')
     reload_server('wsgi_read_from_disk')
