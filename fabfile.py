@@ -11,7 +11,7 @@ REMOTE_ROOT = '/srv/load_testing'
 CONFIG_DIR = REMOTE_ROOT + '/config'
 NGINX_CONFIG = CONFIG_DIR + '/load_testing.vhost'
 
-def benchmark(url, base_filename, requests=100000, concurrency=1000):
+def benchmark(url, base_filename, requests=500, concurrency=1):
     filename = '{0}-{1}'.format(datetime.datetime.now().strftime('%Y%m%d_%H-%M-%S'), base_filename)
     remote_file_path = os.path.join('/tmp', filename)
     local_file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', filename)
